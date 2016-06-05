@@ -7,6 +7,19 @@ public class Runner {
 	public static void main(String[] args) {
 		// UCI();
 		PerftSuiteTwo ps = new PerftSuiteTwo();
+		Perft p = new Perft();
+		System.out.println(p.perft(1));
+		System.out.println(p.perft(2));
+		System.out.println(p.perft(3));
+		System.out.println(p.perft(4));
+		System.out.println(p.perft(5));
+		System.out.println(p.perft(6));
+		System.out.println(p.perft(7));
+		System.out.println(p.perft(8));
+		System.out.println(p.perft(9));
+		System.out.println(p.perft(10));
+		System.out.println(p.perft(11));
+		System.out.println(p.perft(12));
 		// Board b = new Board();
 		// System.out.println(b.getValue());
 	}
