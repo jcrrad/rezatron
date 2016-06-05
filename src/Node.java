@@ -16,7 +16,7 @@ public class Node extends Thread {
 		globalDepth = depth;
 	}
 
-	public Node() {
+	/*public Node() {
 		board = new Board();
 		globalDepth = 3;
 	}
@@ -209,5 +209,5 @@ public class Node extends Thread {
 				alpha = score;
 		}
 		return alpha;
-	}
+	}*/
 }

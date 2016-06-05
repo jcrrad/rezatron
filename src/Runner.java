@@ -24,7 +24,7 @@ public class Runner {
 		// System.out.println(b.getValue());
 	}
 
-	public static void UCI() {
+	/*public static void UCI() {
 		Node n = new Node();
 		BufferedReader input = new BufferedReader(new InputStreamReader(
 				System.in));
@@ -168,5 +168,5 @@ public class Runner {
 		if (promote.equalsIgnoreCase(""))
 			ans += "0";
 		return ans;
-	}
+	}*/
 }
