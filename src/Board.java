@@ -18,12 +18,12 @@ public class Board {
 			10, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30, -30, 0, 15, 20, 20, 15,
 			0, -30, -30, 5, 10, 15, 15, 10, 5, -30, -40, -20, 0, 5, 5, 0, -20,
 			-40, -50, -40, -30, -30, -30, -30, -40, -50, };
-	private static final short[] blackKingPlacement = { -30, -40, -40, -50, -50,
-			-40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40,
-			-40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40,
-			-30, -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20, -20,
-			-20, -20, -20, -10, 20, 20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0, 0,
-			10, 30, 20 };
+	private static final short[] blackKingPlacement = { -30, -40, -40, -50,
+			-50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30,
+			-40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40,
+			-40, -30, -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20,
+			-20, -20, -20, -20, -10, 20, 20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0,
+			0, 10, 30, 20 };
 	private static final short[] whitePawnPlacement = { 0, 0, 0, 0, 0, 0, 0, 0,
 			5, 10, 10, -20, -20, 10, 10, 5, 5, -5, -10, 0, 0, -10, -5, 5, 0, 0,
 			0, 20, 20, 0, 0, 0, 5, 5, 10, 25, 25, 10, 5, 5, 10, 10, 20, 30, 30,
@@ -66,10 +66,10 @@ public class Board {
 			144680345676153346L, 289360691352306692L, 578721382704613384L,
 			1157442765409226768L, 2314885530818453536L, 4629771061636907072L,
 			-9187201950435737472L };
-	private static final long[] squares = { 1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L,
-			256L, 512L, 1024L, 2048L, 4096L, 8192L, 16384L, 32768L, 65536L,
-			131072L, 262144L, 524288L, 1048576L, 2097152L, 4194304L, 8388608L,
-			16777216L, 33554432L, 67108864L, 134217728L, 268435456L,
+	private static final long[] squares = { 1L, 2L, 4L, 8L, 16L, 32L, 64L,
+			128L, 256L, 512L, 1024L, 2048L, 4096L, 8192L, 16384L, 32768L,
+			65536L, 131072L, 262144L, 524288L, 1048576L, 2097152L, 4194304L,
+			8388608L, 16777216L, 33554432L, 67108864L, 134217728L, 268435456L,
 			536870912L, 1073741824L, 2147483648L, 4294967296L, 8589934592L,
 			17179869184L, 34359738368L, 68719476736L, 137438953472L,
 			274877906944L, 549755813888L, 1099511627776L, 2199023255552L,
@@ -80,11 +80,11 @@ public class Board {
 			36028797018963968L, 72057594037927936L, 144115188075855872L,
 			288230376151711744L, 576460752303423488L, 1152921504606846976L,
 			2305843009213693952L, 4611686018427387904L, -9223372036854775808L };
-	private static final int[] order = { 56, 57, 58, 59, 60, 61, 62, 63, 48, 49,
-			50, 51, 52, 53, 54, 55, 40, 41, 42, 43, 44, 45, 46, 47, 32, 33, 34,
-			35, 36, 37, 38, 39, 24, 25, 26, 27, 28, 29, 30, 31, 16, 17, 18, 19,
-			20, 21, 22, 23, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6,
-			7 };
+	private static final int[] order = { 56, 57, 58, 59, 60, 61, 62, 63, 48,
+			49, 50, 51, 52, 53, 54, 55, 40, 41, 42, 43, 44, 45, 46, 47, 32, 33,
+			34, 35, 36, 37, 38, 39, 24, 25, 26, 27, 28, 29, 30, 31, 16, 17, 18,
+			19, 20, 21, 22, 23, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5,
+			6, 7 };
 	private static final String[] letterSquares = { "a1", "b1", "c1", "d1",
 			"e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2",
 			"h2", "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4",
@@ -1467,23 +1467,19 @@ public class Board {
 		return wr | wn | wb | wq | wk | wp;
 	}
 
-	/*
-	 * private String translateMoves(String moves) { String ans = ""; for (int i
-	 * = 0; i < moves.length(); i += 5) { String move = moves.substring(i, i +
-	 * 5); int from = Integer.parseInt(move.substring(0, 2)); int to =
-	 * Integer.parseInt(move.substring(2, 4)); ans += getSqaureName(from) + "" +
-	 * getSqaureName(to) + "(" + move + ")\n"; } return ans; }
-	 */
+	public String translate(String string) {
+		String move = String.format("%05d", Integer.parseInt(string));
+		if (move == null)
+			return "";
+		String ans = "";
+		int from = Integer.parseInt(move.substring(0, 2));
+		int to = Integer.parseInt(move.substring(2, 4));
+		ans += getSqaureName(from) + "" + getSqaureName(to) + "(" + move + ")";
+		return ans;
+	}
 
-	/*
-	 * private String UCI(int moves) { if (moves == null) return ""; String ans =
-	 * ""; for (int i = 0; i < moves.length(); i += 5) { String move =
-	 * moves.substring(i, i + 5); int from = Integer.parseInt(move.substring(0,
-	 * 2)); int to = Integer.parseInt(move.substring(2, 4)); ans +=
-	 * getSqaureName(from) + "" + getSqaureName(to); } return ans; }
-	 */
+	public String translate(int string) {
 
-	public String translateMove(String string) {
 		String move = "" + string;
 		move = String.format("%05d", Integer.parseInt(move));
 		if (move == null)
@@ -1493,6 +1489,57 @@ public class Board {
 		int to = Integer.parseInt(move.substring(2, 4));
 		ans += getSqaureName(from) + "" + getSqaureName(to) + "(" + move + ")";
 		return ans;
+	}
+
+	public static int translateToInt(String move) {
+
+		if (move.equalsIgnoreCase("e1g1")) {
+			return (04061);
+		} else if (move.equalsIgnoreCase("e1c1")) {
+			return (04021);
+		} else if (move.equalsIgnoreCase("e8g8")) {
+			return (60621);
+		} else if (move.equalsIgnoreCase("e8c8")) {
+			return (60581);
+		}
+		String[] letterSquares = { "a1", "b1", "c1", "d1", "e1", "f1", "g1",
+				"h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", "a3",
+				"b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4",
+				"d4", "e4", "f4", "g4", "h4", "a5", "b5", "c5", "d5", "e5",
+				"f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6",
+				"h6", "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8",
+				"b8", "c8", "d8", "e8", "f8", "g8", "h8" };
+		String temp = "" + move;
+		String from = temp.substring(0, 2);
+		String to = temp.substring(2, 4);
+		String promote = "";
+		try {
+			promote = move.substring(4, 5);
+		} catch (StringIndexOutOfBoundsException e) {
+		}
+		String toS = "";
+		String fromS = "";
+		for (int i = 0; i < letterSquares.length; i++) {
+			if (to.equals(letterSquares[i]))
+				toS = (String.format("%02d", i));
+			if (from.equals(letterSquares[i]))
+				fromS = (String.format("%02d", i));
+		}
+		String ans = fromS + toS;
+		if (promote.equalsIgnoreCase("Q"))
+			return 1000 * Integer.parseInt(fromS) + 10 * Integer.parseInt(toS)
+					+ 2;
+		if (promote.equalsIgnoreCase("N"))
+			return 1000 * Integer.parseInt(fromS) + 10 * Integer.parseInt(toS)
+					+ 3;
+		if (promote.equalsIgnoreCase("R"))
+			return 1000 * Integer.parseInt(fromS) + 10 * Integer.parseInt(toS)
+					+ 4;
+		if (promote.equalsIgnoreCase("B"))
+			return 1000 * Integer.parseInt(fromS) + 10 * Integer.parseInt(toS)
+					+ 5;
+
+		return 1000 * Integer.parseInt(fromS) + 10 * Integer.parseInt(toS) + 0;
 	}
 
 	private boolean isSquareEmpty(int square) {
@@ -1644,12 +1691,6 @@ public class Board {
 		ArrayList<Integer> moves = generateMovesNeo(true);
 		return moves.size();
 	}
-
-	/*
-	 * private String printMoveHistory() { String ans = ""; for (int i = 0; i <
-	 * moveCount; i++) ans += "\t" + translateMove(moves[i]) + " "; return ans;
-	 * }
-	 */
 
 	private int getMove(int i) {
 		return moves[i];

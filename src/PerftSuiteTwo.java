@@ -8,9 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PerftSuiteTwo {
-	String[] boardList = { "4k3/8/8/8/8/8/8/4K2R w K - 0 1",
-			"4k3/8/8/8/8/8/8/R3K3 w Q - 0 1", "4k2r/8/8/8/8/8/8/4K3 w k - 0 1",
-			"r3k3/8/8/8/8/8/8/4K3 w q - 0 1",
+	String[] boardList = {
+			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+			"4k3/8/8/8/8/8/8/4K2R w K - 0 1", "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1",
+			"4k2r/8/8/8/8/8/8/4K3 w k - 0 1", "r3k3/8/8/8/8/8/8/4K3 w q - 0 1",
 			"4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1",
 			"r3k2r/8/8/8/8/8/8/4K3 w kq - 0 1",
 			"8/8/8/8/8/8/6k1/4K2R w K - 0 1", "8/8/8/8/8/8/1k6/R3K3 w Q - 0 1",
@@ -106,11 +107,11 @@ public class PerftSuiteTwo {
 			"n1n5/1Pk5/8/8/8/8/5Kp1/5N1N b - - 0 1",
 			"8/PPPk4/8/8/8/8/4Kppp/8 b - - 0 1",
 			"n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1",
-			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 			"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 " };
-	String[] depthGoals = { "15 66 1197 7059 133987 764643",
-			"16 71 1287 7626 145232 846648", "5 75 459 8290 47635 899442",
-			"5 80 493 8897 52710 1001523", "26 112 3189 17945 532933 2788982",
+	String[] depthGoals = { "20 400 8902 197281 4865609 119060324",
+			"15 66 1197 7059 133987 764643", "16 71 1287 7626 145232 846648",
+			"5 75 459 8290 47635 899442", "5 80 493 8897 52710 1001523",
+			"26 112 3189 17945 532933 2788982",
 			"5 130 782 22180 118882 3517770", "12 38 564 2219 37735 185867",
 			"15 65 1018 4573 80619 413018", "3 32 134 2073 10485 179869",
 			"4 49 243 3991 20780 367724",
@@ -190,7 +191,6 @@ public class PerftSuiteTwo {
 			"24 421 7421 124608 2193768 37665329",
 			"18 270 4699 79355 1533145 28859283",
 			"24 496 9483 182838 3605103 71179139",
-			"20 400 8902 197281 4865609 119060324",
 			"48 2039 97862 4085603 193690690" };
 
 	public PerftSuiteTwo() {
@@ -206,7 +206,9 @@ public class PerftSuiteTwo {
 			fen.start();
 			for (int depth = 0; depth < goals.length; depth++) {
 				// 84,998,978,956
-				System.out.print("Perft(" + (depth + 1) + "): " + goals[depth]
+				// move = String.format("%05d", Integer.parseInt(move));
+				System.out.print("Perft(" + (depth + 1) + "): "
+						+ String.format("%09d", Integer.parseInt(goals[depth]))
 						+ " nodes, Time: ");
 				Perft p = new Perft(b.getFEN());
 				long result = p.perft(depth + 1);
@@ -220,12 +222,14 @@ public class PerftSuiteTwo {
 					System.out.println(fen.displayLastLap()
 							+ "\t"
 							+ ((Integer.parseInt(goals[depth]) / fen
-									.getLastLap())*1.0/100) + " Mnps");
+									.getLastLap()) * 1.0 / 100) + " Mnps");
 				} else {
 					System.out.println(fen.displayLastLap());
 				}
 			}
 			System.out.println("");
 		}
+		totalTimer.stop();
+		System.out.println("Total Time:" + totalTimer.displayLastLap());
 	}
 }

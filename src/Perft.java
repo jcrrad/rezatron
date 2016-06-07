@@ -33,7 +33,7 @@ public String divide(int depth) {
         int temp = 0;
         if (!(moveList.size()==0)) {
         for (int i = 0; i < moveList.size(); i++) {
-        ary1[temp] = board.translateMove(""+moveList.get(i));
+        ary1[temp] = board.translate(""+moveList.get(i));
         board.move(moveList.get(i));
         count[temp] = diveIn(depth - 1);
         board.undo();
