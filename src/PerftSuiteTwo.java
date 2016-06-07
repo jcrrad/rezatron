@@ -213,6 +213,7 @@ public class PerftSuiteTwo {
 					System.out.print("\t");
 				else
 				{
+					System.out.println("\n\n\t\t We actually got: " + result);
 					int error =0/0;
 				}
 				fen.lap();

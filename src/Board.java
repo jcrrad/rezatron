@@ -302,58 +302,28 @@ public class Board {
 		enPassantTargetHistory.remove(enPassantTargetHistory.size() - 1);
 		enPassantTarget = enPassantTargetHistory.get(enPassantTargetHistory
 				.size() - 1);
-
 		for (int i = 0; i < 17; i++) {
 			history.remove(history.size() - 1);
 		}
 
 		fortyMoveCount = (history.get(history.size() - 1));
-		// history.remove(history.size()-1);
 
 		bqc = (history.get(history.size() - 2)) != 0;
-		// history.remove(history.size()-1);
 		bkc = (history.get(history.size() - 3)) != 0;
-		// history.remove(history.size()-1);
 		wqc = (history.get(history.size() - 4)) != 0;
-		// history.remove(history.size()-1);
 		wkc = (history.get(history.size() - 5)) != 0;
-		// history.remove(history.size()-1);
-
 		bk = (history.get(history.size() - 6));
-		// history.remove(history.size()-1);
-
 		bq = (history.get(history.size() - 7));
-		// history.remove(history.size()-1);
-
 		bb = (history.get(history.size() - 8));
-		// history.remove(history.size()-1);
-
 		bn = (history.get(history.size() - 9));
-		// history.remove(history.size()-1);
-
 		br = (history.get(history.size() - 10));
-		// history.remove(history.size()-1);
-
 		bp = (history.get(history.size() - 11));
-		// history.remove(history.size()-1);
-
 		wk = (history.get(history.size() - 12));
-		// history.remove(history.size()-1);
-
 		wq = (history.get(history.size() - 13));
-		// history.remove(history.size()-1);
-
 		wb = (history.get(history.size() - 14));
-		// history.remove(history.size()-1);
-
 		wn = (history.get(history.size() - 15));
-		// history.remove(history.size()-1);
-
 		wr = (history.get(history.size() - 16));
-		// history.remove(history.size()-1);
-
 		wp = (history.get(history.size() - 17));
-		// history.remove(history.size()-1);
 		moveCount -= 1;
 		// wp + "," + wr + "," + wn + "," + wb + "," + wq
 		// + "," + wk + "," + bp + "," + br + "," + bn + "," + bb + ","
@@ -362,7 +332,7 @@ public class Board {
 
 	}
 
-	public void move(int move) {
+	public void move(int move) throws IllegalMoveException {
 		fortyMoveCount++;
 		int from = move / 1000 % 1000;
 		// move-=from*1000;
@@ -545,6 +515,16 @@ public class Board {
 		updateHistory();
 		// moves[moveCount] = move;
 		moveCount++;
+		// We will now check to see if the move you just made is legal. If it is
+		// not we will undo the move and throw an error.
+		if (isWhitesTurn && isBlackChecked()) {
+			undo();
+			throw new IllegalMoveException(move);
+		} else if (!isWhitesTurn && isWhiteChecked()) {
+			undo();
+			throw new IllegalMoveException(move);
+		}
+
 	}
 
 	public String toString() {
@@ -1302,6 +1282,7 @@ public class Board {
 			return bqn;
 		if (((bk >> sqaure) & 1) == 1)
 			return bkn;
+		// this should never happen
 		return 0;
 
 	}
@@ -1376,87 +1357,15 @@ public class Board {
 	 */
 
 	public ArrayList<Integer> legalizeMovesNeo(ArrayList<Integer> moves) {
-		long attacks = 0L;
-		long pins = 0L;
-		long kingMoves = 0L;
-		int kingSquare;
-		boolean check = false;
-		boolean kingSaftey = false;
-		long star = 0L;
-		if (isWhitesTurn) {
-			kingSquare = getWhiteKingSquare();
-			attacks = getBlackMovement() | blackPawnAttackLeft()
-					| blackPawnAttackRight();
-			kingMoves = getKingMovement(kingSquare);
-			star = getQueenMovement(getAll(), kingSquare)
-					| getKnightMovement(kingSquare);
-			check = isWhiteChecked(attacks);
-			pins = getWhitePins();
-		} else {
-			kingSquare = getBlackKingSquare();
-			attacks = getWhiteMovement() | whitePawnAttackLeft()
-					| whitePawnAttackRight();
-			kingMoves = getKingMovement(kingSquare);
-			star = getQueenMovement(getAll(), kingSquare)
-					| getKnightMovement(kingSquare);
-			check = isBlackChecked(attacks);
-			pins = getBlackPins();
-		}
-		if ((attacks & kingMoves) != 0)
-			kingSaftey = true;
 		for (int i = 0; i < moves.size(); i++) {
-			int move = moves.get(i);
-			int from = move / 1000 % 1000;
-			if ((((pins >> from) & 1) == 1)
-					|| (kingSaftey & from == kingSquare)) {// ||
-				// Integer.parseInt(move.substring(4,
-				// 5))
-				// == 9)
-				// {
-				if ((kingSaftey & from == kingSquare)) {
-					long to = 1L << move / 10 % 100;
-					if ((attacks & to) == to) {
-						moves.remove(i);
-						i--;
-					} else {
-						move(move);
-						if (isWhitesTurn && isBlackChecked()) {
-							moves.remove(i);
-							i--;
-						} else if (!isWhitesTurn && isWhiteChecked()) {
-							moves.remove(i);
-							i--;
-						}
-						undo();
-					}
-				} else {
-					move(move);
-					if (isWhitesTurn && isBlackChecked()) {
-						moves.remove(i);
-						i--;
-					} else if (!isWhitesTurn && isWhiteChecked()) {
-						moves.remove(i);
-						i--;
-					}
-					undo();
-				}
-			} else if (check) {
-				long to = 1L << move / 10 % 100;
-				if ((to & star) != 0) {
-					move(move);
-					if (isWhitesTurn && isBlackChecked()) {
-						moves.remove(i);
-						i--;
-					} else if (!isWhitesTurn && isWhiteChecked()) {
-						moves.remove(i);
-						i--;
-					}
-					undo();
-				} else {
-					moves.remove(i);
-					i--;
-
-				}
+			try {
+				this.move(moves.get(i));
+				undo();
+			} catch (IllegalMoveException e) {
+				moves.remove(i);
+				i--;
+			} catch (Exception e) {
+				int error = 0 / 0;
 			}
 
 		}
@@ -1475,20 +1384,15 @@ public class Board {
 	 * getSqaureName(to) + "(" + move + ")\n"; } return ans; }
 	 */
 
-	/*public String UCI(int moves) {
-		if (moves == null)
-			return "";
-		String ans = "";
-		for (int i = 0; i < moves.length(); i += 5) {
-			String move = moves.substring(i, i + 5);
-			int from = Integer.parseInt(move.substring(0, 2));
-			int to = Integer.parseInt(move.substring(2, 4));
-			ans += getSqaureName(from) + "" + getSqaureName(to);
-		}
-		return ans;
-	}*/
+	/*
+	 * public String UCI(int moves) { if (moves == null) return ""; String ans =
+	 * ""; for (int i = 0; i < moves.length(); i += 5) { String move =
+	 * moves.substring(i, i + 5); int from = Integer.parseInt(move.substring(0,
+	 * 2)); int to = Integer.parseInt(move.substring(2, 4)); ans +=
+	 * getSqaureName(from) + "" + getSqaureName(to); } return ans; }
+	 */
 
-	public String translateMove(int input) {
+	public static String translateMove(int input) {
 		String move = "" + input;
 		move = String.format("%05d", Integer.parseInt(move));
 		if (move == null)
@@ -1507,7 +1411,7 @@ public class Board {
 		return true;
 	}
 
-	private String getSqaureName(int from) {
+	private static String getSqaureName(int from) {
 		return letterSquares[from];
 	}
 
@@ -1963,6 +1867,15 @@ public class Board {
 		return isWhitesTurn;
 	}
 
+	public static String transalteArrayList(ArrayList<Integer> moveList) {
+		String ans = "";
+		for (int i = 0; i < moveList.size(); i++) {
+			ans += translateMove(moveList.get(i)) + "\t";
+		}
+		return ans;
+
+	}
+
 	/*
 	 * public String generateAttackMoves() { long all = getAll();
 	 * ArrayList<Integer> moves = generateMovesNeo(true); for (int i = 0; i <
@@ -1972,5 +1885,6 @@ public class Board {
 	 * 
 	 * } return moves; }
 	 */
+
 
 }
