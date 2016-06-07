@@ -59,6 +59,7 @@ public class Timer {
 		}
 		return answer;
 	}
+	
 
 	public String displaySplit() {
 		String answer = "\n0:";
@@ -84,6 +85,11 @@ public class Timer {
 		int i = times.size() - 1;
 		long time = (times.get(i) - times.get(i - 1));
 		return (i + ": " + displayTime(time));
+	}
+	public long getLastLap()
+	{
+		int i = times.size() - 1;
+		return (times.get(i) - times.get(i - 1));
 	}
 
 	public String displaySplit(int i) {

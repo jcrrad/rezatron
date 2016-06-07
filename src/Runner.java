@@ -6,8 +6,19 @@ import java.util.Scanner;
 
 public class Runner {
 	public static void main(String[] args) {
+		/*
+		 * UCI u = new UCI(); u.uciCommunication();
+		 */
+		/*for (int x = 0; x < 100; x++) {
+			Timer timer = new Timer();
+			timer.start();
+				Perft p = new Perft();
+				System.out.println(p.perft(5));
+				timer.lap();
 
-		PerftSuiteTwo ps = new PerftSuiteTwo();
-		
+			System.out.println(timer.displayLap()+"\n");
+		}*/
+		PerftSuiteTwo ps =new PerftSuiteTwo();
 	}
+
 }

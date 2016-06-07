@@ -205,19 +205,25 @@ public class PerftSuiteTwo {
 			Timer fen = new Timer();
 			fen.start();
 			for (int depth = 0; depth < goals.length; depth++) {
+				// 84,998,978,956
 				System.out.print("Perft(" + (depth + 1) + "): " + goals[depth]
 						+ " nodes, Time: ");
 				Perft p = new Perft(b.getFEN());
 				long result = p.perft(depth + 1);
-				if(result==Long.parseLong(goals[depth]))
+				if (result == Long.parseLong(goals[depth]))
 					System.out.print("\t");
-				else
-				{
-					System.out.println("\n\n\t\t We actually got: " + result);
-					int error =0/0;
+				else {
+					int error = 0 / 0;
 				}
 				fen.lap();
-				System.out.println(fen.displayLastLap());
+				if (fen.getLastLap() > 0) {
+					System.out.println(fen.displayLastLap()
+							+ "\t"
+							+ ((Integer.parseInt(goals[depth]) / fen
+									.getLastLap())*1.0/100) + " Mnps");
+				} else {
+					System.out.println(fen.displayLastLap());
+				}
 			}
 			System.out.println("");
 		}
