@@ -844,10 +844,12 @@ public class Board {
 			moves &= (getBlack() | getEmpty());
 		else
 			moves &= (getWhite() | getEmpty());
+		for (int i = 0; i < 64; i++) {
 
-		for (long temp = moves; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			ans.add(1000 * square + 10 * Long.numberOfTrailingZeros(temp));
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
 		}
 		return ans;
 	}
@@ -871,9 +873,12 @@ public class Board {
 		else
 			moves &= (getWhite() | getEmpty());
 
-		for (long temp = moves; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			ans.add(1000 * square + 10 * Long.numberOfTrailingZeros(temp));
+		for (int i = 0; i < 64; i++) {
+
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
 		}
 		return ans;
 	}
@@ -897,9 +902,12 @@ public class Board {
 		else
 			moves &= (getWhite() | getEmpty());
 
-		for (long temp = moves; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			ans.add(1000 * (square) + 10 * Long.numberOfTrailingZeros(temp));
+		for (int i = 0; i < 64; i++) {
+
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
 		}
 		return ans;
 	}
@@ -923,9 +931,27 @@ public class Board {
 		else
 			moves &= (getWhite() | getEmpty());
 
-		for (long temp = moves; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			ans.add(1000 * square + 10 * Long.numberOfTrailingZeros(temp));
+		for (int i = 0; i < 64; i++) {
+
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
+		}
+		return ans;
+
+	}
+
+	public static ArrayList<Integer> writeMoves(long moves, int square) {
+
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+
+		for (int i = 0; i < 64; i++) {
+
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
 		}
 		return ans;
 	}
@@ -955,9 +981,12 @@ public class Board {
 		else
 			moves &= (getWhite() | getEmpty());
 
-		for (long temp = moves; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			ans.add(1000 * square + 10 * Long.numberOfTrailingZeros(temp));
+		for (int i = 0; i < 64; i++) {
+
+			long temp = moves & (1L << i);
+			if (temp != 0) {
+				ans.add(1000 * square + 10 * i);
+			}
 		}
 		return ans;
 	}
@@ -970,18 +999,22 @@ public class Board {
 			case wrn:
 				ans.addAll(writeRookMovementNeo((Long
 						.numberOfTrailingZeros(temp))));
+				// System.out.println("After ROOK: " + ans);
 				break;
 			case wnn:
 				ans.addAll(writeKnightMovementNeo((Long
 						.numberOfTrailingZeros(temp))));
+				// System.out.println("After KNIGHT: " + ans);
 				break;
 			case wbn:
 				ans.addAll(writeBishopMovementNeo((Long
 						.numberOfTrailingZeros(temp))));
+				// System.out.println("After BISHOP: " + ans);
 				break;
 			case wqn:
 				ans.addAll(writeQueenMovementNeo((Long
 						.numberOfTrailingZeros(temp))));
+				// System.out.println("After QUEEN: " + ans);
 				break;
 			}
 		}
@@ -1306,15 +1339,6 @@ public class Board {
 
 	}
 
-	/*
-	 * private void showAllMoves(int depth, boolean showAll) { if (depth == 0) {
-	 * // System.out.println(this); // System.out.println(getValue());
-	 * System.out.println(printMoveHistory() + "\t" + getValue()); } else {
-	 * ArrayList<Integer> moves = generateMovesNeo(true); for (int i = 0; i <
-	 * moves.size(); i++) { move(moves.get(i)); if (showAll)
-	 * System.out.println(this); showAllMoves(depth - 1, showAll); undo(); } } }
-	 */
-
 	public ArrayList<Integer> generateMovesNeo(boolean legal) {
 		ArrayList<Integer> moves = new ArrayList<Integer>();
 		long attacks = 0L;
@@ -1362,18 +1386,6 @@ public class Board {
 		} else
 			return moves;
 	}
-
-	/*
-	 * private String printPV() {
-	 * 
-	 * int move = moves[1]; int from = Integer.parseInt(move.substring(0, 2));
-	 * int to = Integer.parseInt(move.substring(2, 4)); String ans =
-	 * getSqaureName(from) + "" + getSqaureName(to); for (int i = 2; i <
-	 * moveCount + 3; i++) { if (moves[i] == 0) return ans; move = moves[i];
-	 * from = Integer.parseInt(move.substring(0, 2)); to =
-	 * Integer.parseInt(move.substring(2, 4)); ans += "-" + getSqaureName(from)
-	 * + "" + getSqaureName(to); } return ans; }
-	 */
 
 	private ArrayList<Integer> legalizeMovesNeo(ArrayList<Integer> moves) {
 		long attacks = 0L;
@@ -1747,7 +1759,7 @@ public class Board {
 		return true;
 	}
 
-	private int getValue() {
+	public int getValue() {
 		boolean old = isWhitesTurn;
 		isWhitesTurn = true;
 		int whiteMoveCount = this.generateMovesNeo(true).size();
@@ -1998,15 +2010,5 @@ public class Board {
 	private boolean isWhitesTurn() {
 		return isWhitesTurn;
 	}
-
-	/*
-	 * private String generateAttackMoves() { long all = getAll();
-	 * ArrayList<Integer> moves = generateMovesNeo(true); for (int i = 0; i <
-	 * moves.size(); i++) { int move = moves.get(i); int to =
-	 * Integer.parseInt(move.substring(2, 4)); if (pieceAtSquare(to) == 0) {
-	 * moves = moves.substring(0, i) + moves.substring(i + 5); i -= 5; }
-	 * 
-	 * } return moves; }
-	 */
 
 }

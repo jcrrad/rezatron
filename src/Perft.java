@@ -30,7 +30,7 @@ public class Perft {
 	public void perft(int start, int end) {
 		String pattern = "0,000.000";
 		DecimalFormat decimalFormat = new DecimalFormat(pattern);
-		for (int i = start; i < end; i++) {
+		for (int i = start; i <= end; i++) {
 			String line = "Perft(";
 			if (i < 10)
 				line += " " + i + ")=";

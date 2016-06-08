@@ -215,6 +215,7 @@ public class PerftSuiteTwo {
 				if (result == Long.parseLong(goals[depth]))
 					System.out.print("\t");
 				else {
+					System.out.println("\n\nResults:" + result);
 					int error = 0 / 0;
 				}
 				fen.lap();
