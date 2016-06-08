@@ -2007,7 +2007,7 @@ public class Board {
 		return moves;
 	}
 
-	private boolean isWhitesTurn() {
+	public boolean isWhitesTurn() {
 		return isWhitesTurn;
 	}
 

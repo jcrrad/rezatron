@@ -1,11 +1,16 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class MoveAlgorithm {
 	protected Board board;
 	private int depthGoal;
 	int bestMove;
 	private ArrayList<Integer> bestPath;
+	private int topBranch;
+	private long nodeCount;
+	private long startTime;
+	private String pattern;
+	private DecimalFormat decimalFormat;
 
 	public MoveAlgorithm() {
 		board = new Board();
@@ -18,6 +23,8 @@ public class MoveAlgorithm {
 		this.board = b;
 		this.depthGoal = depthGoal;
 		bestMove = 0;
+		pattern = "00,000.000";
+		decimalFormat = new DecimalFormat(pattern);
 
 	}
 
@@ -33,6 +40,9 @@ public class MoveAlgorithm {
 
 	public int alphaBeta(int goal) {
 		bestMove = 0;
+		topBranch = board.generateMovesNeo(true).size();
+		nodeCount = 0;
+		startTime = System.currentTimeMillis();
 		bestPath = new ArrayList<Integer>();
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		int score = 0;
@@ -41,9 +51,9 @@ public class MoveAlgorithm {
 		} else {
 			score = alphaBetaMin(-99999999, 99999999, goal, path);
 		}
-		System.out.print(score+"-");
+		System.out.print(score + "-");
 		for (int i = 0; i < bestPath.size(); i++) {
-			System.out.print("\t" + board.translateMove(bestPath.get(i)));
+			System.out.print("\t" + board.translate(bestPath.get(i)));
 		}
 		System.out.println();
 		return bestPath.get(0);
@@ -58,9 +68,9 @@ public class MoveAlgorithm {
 			ans = alphaBeta(goal);
 			goal++;
 			for (int i = 0; i < bestPath.size(); i++) {
-				System.out.print("\t" + board.translateMove(bestPath.get(i)));
+				System.out.print("\t" + board.translate(bestPath.get(i)));
 			}
-			bestPath=new ArrayList<Integer>();
+			bestPath = new ArrayList<Integer>();
 			System.out.println();
 		}
 		return ans;
@@ -76,6 +86,12 @@ public class MoveAlgorithm {
 		}
 
 		for (int i = 0; i < moves.size(); i++) {
+			if (depthleft == depthGoal) {
+				System.out.println("info currmove "
+						+ board.translate(moves.get(i)) + " nodes " + nodeCount
+						+ " nps " + this.NPS(nodeCount, startTime));
+			}
+			nodeCount++;
 			board.move(moves.get(i));
 			ArrayList<Integer> path = new ArrayList<Integer>();
 			for (int q = 0; q < input.size(); q++) {
@@ -87,12 +103,12 @@ public class MoveAlgorithm {
 			if (score >= beta)
 				return beta; // fail hard beta-cutoff
 			if (score > alpha) {
-				bestPath=new ArrayList<Integer>();
-				for (int q = 0; q <path.size(); q++) {
+				bestPath = new ArrayList<Integer>();
+				for (int q = 0; q < path.size(); q++) {
 					bestPath.add(path.get(q));
 				}
-				 //System.out.println("Found a new best in max move:"
-				 //+ board.translateMove(moves.get(i)));
+				// System.out.println("Found a new best in max move:"
+				// + board.translateMove(moves.get(i)));
 				alpha = score; // alpha acts like max in MiniMax
 
 			}
@@ -109,6 +125,12 @@ public class MoveAlgorithm {
 			return board.getValue();
 		}
 		for (int i = 0; i < moves.size(); i++) {
+			if (depthleft == depthGoal) {
+				System.out.println("info currmove "
+						+ board.translate(moves.get(i)) + " nodes " + nodeCount
+						+ " nps " + this.NPS(nodeCount, startTime));
+			}
+			nodeCount++;
 			board.move(moves.get(i));
 			ArrayList<Integer> path = new ArrayList<Integer>();
 			for (int q = 0; q < input.size(); q++) {
@@ -120,15 +142,20 @@ public class MoveAlgorithm {
 			if (score <= alpha)
 				return alpha; // fail hard alpha-cutoff
 			if (score < beta) {
-				bestPath=new ArrayList<Integer>();
-				for (int q = 0; q <path.size(); q++) {
+				bestPath = new ArrayList<Integer>();
+				for (int q = 0; q < path.size(); q++) {
 					bestPath.add(path.get(q));
 				}
-				 //System.out.println("Found a new best in min move:"
-				 //+ board.translateMove(moves.get(i)));
+				// System.out.println("Found a new best in min move:"
+				// + board.translateMove(moves.get(i)));
 				beta = score; // beta acts like min in MiniMax
 			}
 		}
 		return beta;
+	}
+
+	public String NPS(long nodes, long startTime) {
+		double seconds = (System.currentTimeMillis() - startTime) / (1000.0);
+		return decimalFormat.format(nodes / seconds);
 	}
 }
