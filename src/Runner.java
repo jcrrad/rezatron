@@ -6,26 +6,26 @@ import java.util.Scanner;
 
 public class Runner {
 	public static void main(String[] args) {
+
+		// UCI u = new UCI();
+		// UCI.uciCommunication();
 		/*
-		 * UCI u = new UCI(); u.uciCommunication();
+		 * String fen = "r6r/3Q1p1p/pk4n1/1p4P1/5B2/P1N2P2/1PP5/4RK2 w - -";
+		 * Board b = new Board(fen); System.out.println(b); // b.move(5140); //
+		 * b.move(33250); System.out.println(b.getValue()); MoveAlgorithm ma =
+		 * new MoveAlgorithm(b, 1); System.out.println(ma.alphaBetaNeo(4,
+		 * Integer.MAX_VALUE, Integer.MIN_VALUE, "", 0)); System.out.println(b);
 		 */
-		/*
-		 * for (int x = 0; x < 100; x++) { Timer timer = new Timer();
-		 * timer.start(); Perft p = new Perft(); System.out.println(p.perft(5));
-		 * timer.lap();
-		 * 
-		 * System.out.println(timer.displayLap()+"\n"); }
-		 */
-		String fen = "6k1/1b4pp/1B1Q4/4p1P1/p3q3/2P3r1/P1P2PP1/R5K1 w - - 1 0";
-		fen = "3r3r/1Q5p/p3q2k/3NBp1B/3p3n/5P2/PP4PP/4R2K w - - 1 0";
-		fen = "6rk/2N5/1p1p3p/p2Pb2B/P1P1b3/1R4PK/5r2/6R1 b - -";
-		MoveAlgorithm ma = new MoveAlgorithm(new Board(), 6);
-		Timer t = new Timer();
-		System.out.println("Starting");
-		t.start();
-		ma.alphaBeta(10);
-		t.stop();
-		System.out.println("That took " + t.getTime());
+		PerftSuiteTwo ps = new PerftSuiteTwo();
+		Board b = new Board("r3k2r/1b4bq/8/8/8/8/7B/R3K2R w KQkq - 0 1;");
+
+		Perft p = new Perft(b.getFEN());
+
+		p.perft(1, 4);
+		System.out.println(b.getFEN());
+		System.out.println(p.divide(4));
+
+		System.out.println(b);
 
 	}
 }

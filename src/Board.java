@@ -12,6 +12,12 @@ public class Board {
 	private boolean bkc, bqc, wkc, wqc;
 	private int moveCount;
 	private long fortyMoveCount;
+	public static final int NORMAL = 0;
+	public static final int CAPTURE = 1;
+	public static final int EP = 2;
+	public static final int CASTLE = 3;
+	public static final int CHECK = 4;
+	public static final int CHECKMATE = 5;
 	// 7 + rank - file
 	private static final short[] knightPlacement = { -50, -40, -30, -30, -30,
 			-30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10, 15, 15,
@@ -362,10 +368,24 @@ public class Board {
 
 	}
 
+	/*public int detailedMove(int move) {
+		int ans = 0;
+		if (move == 4061 || move == 4021 || move == 60621 || move == 60581) {
+			ans = CASTLE;
+		}
+		int to = move / 10 % 100;
+		int attackedPiece = pieceAtSquare(to);
+		int promote = move % 10;
+		int from = move / 1000 % 1000;
+		int piece = pieceAtSquare(from);
+		
+		if((piece==wpn || piece==bpn)&&())
+		return 0;
+	}*/
+
 	public void move(int move) {
 		fortyMoveCount++;
 		int from = move / 1000 % 1000;
-		// move-=from*1000;
 		int to = move / 10 % 100;
 		int attackedPiece = pieceAtSquare(to);
 		int promote = move % 10;
@@ -438,6 +458,8 @@ public class Board {
 				break;
 			}
 			switch (attackedPiece) {
+			case 0:
+				break;
 			case wpn:
 				fortyMoveCount = 0;
 				wp -= squares[to];
@@ -945,10 +967,10 @@ public class Board {
 	public static ArrayList<Integer> writeMoves(long moves, int square) {
 
 		ArrayList<Integer> ans = new ArrayList<Integer>();
-
+		long temp = 1;
 		for (int i = 0; i < 64; i++) {
 
-			long temp = moves & (1L << i);
+			temp = moves & (temp << 1);
 			if (temp != 0) {
 				ans.add(1000 * square + 10 * i);
 			}
@@ -1469,6 +1491,16 @@ public class Board {
 					i--;
 
 				}
+			} else if (moves.get(i) % 10 != 0) {
+				move(move);
+				if (isWhitesTurn && isBlackChecked()) {
+					moves.remove(i);
+					i--;
+				} else if (!isWhitesTurn && isWhiteChecked()) {
+					moves.remove(i);
+					i--;
+				}
+				undo();
 			}
 
 		}
@@ -1781,17 +1813,6 @@ public class Board {
 				return 0;
 		}
 
-		long blackMoves = getBlackMovement() | blackPawnAttackLeft()
-				| blackPawnAttackRight();
-		long whiteMoves = getWhiteMovement() | whitePawnAttackLeft()
-				| whitePawnAttackRight();
-
-		long whiteKingMoves = getKingMovement(getWhiteKingSquare());
-		long wPins = getWhitePins();
-
-		long blackKingMoves = getKingMovement(getBlackKingSquare());
-		long bPins = getBlackPins();
-
 		int wpc = countBits(wp);
 		int bpc = countBits(bp);
 
@@ -1807,143 +1828,10 @@ public class Board {
 		int wqc = countBits(wq);
 		int bqc = countBits(bq);
 
-		int whiteAttacks = countBits(whiteMoves & getBlack());
-		int blackAttacks = countBits(blackMoves & getWhite());
-
-		int whiteDefend = countBits(whiteMoves & getWhite());
-		int blackDefend = countBits(blackMoves & getBlack());
-
-		int whitePins = countBits(wPins);
-		int blackPins = countBits(bPins);
-
-		int whiteDoublePawn = 0;
-		int blackDoublePawn = 0;
-
-		int whiteKingAttack = countBits(whiteMoves & blackKingMoves);
-		int blackKingAttack = countBits(blackMoves & whiteKingMoves);
-
-		int whiteKingDefend = countBits(whiteMoves & whiteKingMoves);
-		int blackKingDefend = countBits(blackMoves & blackKingMoves);
-
-		int whiteAttackCenter = countBits(whiteMoves & CENTRE);
-		int blackAttackCenter = countBits(blackMoves & CENTRE);
-
-		int wrp = 0;
-		int brp = 0;
-		for (long temp = wr; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			wrp += rookPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		for (long temp = br; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			brp += rookPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-
-		/*
-		 * int wpp = 0; int bpp = 0; for (long temp = wp; temp != 0; temp -= 1L
-		 * << Long .numberOfTrailingZeros(temp)) { wpp +=
-		 * pawnPlacement[Long.numberOfTrailingZeros(temp)]; } for (long temp =
-		 * bp; temp != 0; temp -= 1L << Long .numberOfTrailingZeros(temp)) { bpp
-		 * += pawnPlacement[Long.numberOfTrailingZeros(temp)]; }
-		 */
-
-		int wbp = 0;
-		int bbp = 0;
-		for (long temp = wb; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			wbp += bishopPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		for (long temp = bb; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			bbp += bishopPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-
-		int wnp = 0;
-		int bnp = 0;
-		for (long temp = wn; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			wnp += knightPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		for (long temp = bn; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			bnp += knightPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-
-		for (int i = 0; i < rankMask.length; i++) {
-			countBits(wp & rankMask[2]);
-		}
-
-		int wqp = 0;
-		int bqp = 0;
-		for (long temp = wq; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			wnp += queenPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		for (long temp = bq; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			bqp += queenPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		int wpp = 0;
-		int bpp = 0;
-		for (long temp = wp; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			wpp += whitePawnPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		for (long temp = bp; temp != 0; temp -= 1L << Long
-				.numberOfTrailingZeros(temp)) {
-			bpp += blackPawnPlacement[Long.numberOfTrailingZeros(temp)];
-		}
-		int wkp = 0;
-		/*
-		 * for (long temp = wk; temp != 0; temp -= 1L << Long
-		 * .numberOfTrailingZeros(temp)) { wkp +=
-		 * whiteKingPlacement[Long.numberOfTrailingZeros(temp)]; }
-		 */
-
-		for (int i = 0; i < rankMask.length; i++) {
-			countBits(wp & rankMask[2]);
-		}
-
-		for (int i = 0; i < fileMask.length; i++) {
-			if (countBits(fileMask[i] & wp) > 1)
-				whiteDoublePawn++;
-			if (countBits(fileMask[i] & bp) > 1)
-				blackDoublePawn++;
-		}
-
-		int whitePawnMovement = 2 * countBits(wp & rankMask[1]);
-		whitePawnMovement += 3 * countBits(wp & rankMask[2]);
-		whitePawnMovement += 4 * countBits(wp & rankMask[3]);
-		whitePawnMovement += 5 * countBits(wp & rankMask[4]);
-		whitePawnMovement += 6 * countBits(wp & rankMask[5]);
-		whitePawnMovement += 7 * countBits(wp & rankMask[6]);
-		whitePawnMovement += 8 * countBits(wp & rankMask[7]);
-
-		int blackPawnMovement = 2 * countBits(bp & rankMask[7]);
-		blackPawnMovement += 3 * countBits(bp & rankMask[6]);
-		blackPawnMovement += 4 * countBits(bp & rankMask[5]);
-		blackPawnMovement += 5 * countBits(bp & rankMask[4]);
-		blackPawnMovement += 6 * countBits(bp & rankMask[3]);
-		blackPawnMovement += 7 * countBits(bp & rankMask[2]);
-		blackPawnMovement += 8 * countBits(bp & rankMask[1]);
-
-		// int wkc = countBits(wk); // int bkc = countBits(bk);
 		int material = 900 * (wqc - bqc) + 500 * (wrc - brc) + 300
 				* (wbc - bbc) + 250 * (wnc - bnc) + 100 * (wpc - bpc);
-		int otherStuff = 15 * (whiteMoveCount - blackMoveCount) - 5
-				* (whiteDoublePawn - blackDoublePawn) + 25
-				* (whiteAttacks - blackAttacks) + 25
-				* (whiteDefend - blackDefend) + 10 * (whitePins - blackPins)
-				+ 35 * (whiteKingAttack - blackKingAttack) + 25
-				* (whiteKingDefend - blackKingDefend) + 15
-				* (whiteAttackCenter - blackAttackCenter) + 15
-				* (whitePawnMovement - blackPawnMovement);
-		otherStuff += (wrp - brp) + (wbp - bbp) + (wnp - bnp) + (wqp + bqp)
-				+ wkp + (wpp - bpp);
-		// if (isWhitesTurn)
-		return 2 * material + otherStuff;
-		// else
-		// return -1 * (2 * material + otherStuff);
+
+		return material + (whiteMoveCount - blackMoveCount);
 
 	}
 

@@ -1,0 +1,3 @@
+06-10-2016 - V00.01.01
+     - Fixed a bug with enPassante allowing you to enPassante into check
+     - Updated perft function to allow a detailed print out of types of moves being made
