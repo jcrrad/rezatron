@@ -48,11 +48,25 @@ public class Perft {
 			for (int x = 0; x < 40 - length; x++) {
 				System.out.print(" ");
 			}
-			System.out.println(nodeCount + " " + timeString);
+			double mNPS = ((n * 1.0) / (ms)) * (1.0 / 1000);
+			System.out.println(nodeCount + " " + timeString + "\t" + mNPS
+					+ " mNPS");
 		}
 	}
 
+	public long[] updateArray(int number, long[] copy) {
+		copy[0]++;
+		for (int i = 0; i <= 6; i++) {
+			if (((number >> i) & 1) == 1) {
+				copy[i + 1]++;
+			}
+		}
+		return copy;
+	}
+
 	public String divide(int depth) {
+		System.out.println("Divide for board :" + board.getFEN()
+				+ "\n\t Depth: " + depth);
 		ArrayList<Integer> moveList = board.generateMovesNeo(true);
 		String[] ary1 = new String[moveList.size()];
 		long[] count = new long[ary1.length];

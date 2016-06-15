@@ -15,9 +15,15 @@ public class Board {
 	public static final int NORMAL = 0;
 	public static final int CAPTURE = 1;
 	public static final int EP = 2;
-	public static final int CASTLE = 3;
-	public static final int CHECK = 4;
-	public static final int CHECKMATE = 5;
+	public static final int CASTLE = 4;
+	public static final int CHECK = 8;
+	public static final int CHECKMATE = 16;
+	public static final int PROMOTE = 32;
+	public static final int QUEEN = 2;
+	public static final int BISHOP = 3;
+	public static final int KNIGHT = 4;
+	public static final int ROOK = 5;
+	public static final int EPFLAG = 9;
 	// 7 + rank - file
 	private static final short[] knightPlacement = { -50, -40, -30, -30, -30,
 			-30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10, 15, 15,
@@ -368,20 +374,33 @@ public class Board {
 
 	}
 
-	/*public int detailedMove(int move) {
+	public int detailedMove(int move) {
 		int ans = 0;
 		if (move == 4061 || move == 4021 || move == 60621 || move == 60581) {
-			ans = CASTLE;
+			ans += CASTLE;
 		}
 		int to = move / 10 % 100;
 		int attackedPiece = pieceAtSquare(to);
 		int promote = move % 10;
 		int from = move / 1000 % 1000;
 		int piece = pieceAtSquare(from);
-		
-		if((piece==wpn || piece==bpn)&&())
-		return 0;
-	}*/
+
+		if (promote > 1) {
+			if (promote == EPFLAG)
+				ans += EP;
+			else
+				ans += PROMOTE;
+		}
+		move(move);
+		ArrayList<Integer> moveList = generateMovesNeo(true);
+		if (moveList.size() == 0)
+			ans += CHECKMATE;
+		if (isWhiteChecked() || isBlackChecked())
+			ans += CHECK;
+		if (attackedPiece > 1)
+			ans += CAPTURE;
+		return ans;
+	}
 
 	public void move(int move) {
 		fortyMoveCount++;
@@ -503,37 +522,37 @@ public class Board {
 			}
 			if (promote > 1) {
 				fortyMoveCount = 0;
-				if (promote == 9) {
+				if (promote == EPFLAG) {
 					if (piece == wpn)
 						bp -= squares[to - 8];
 					else
 						wp -= squares[to + 8];
 				} else {
 					if (piece == wpn) {
-						if (promote == 2) {
+						if (promote == QUEEN) {
 							wp -= squares[to];
 							wq += squares[to];
-						} else if (promote == 3) {
+						} else if (promote == KNIGHT) {
 							wp -= squares[to];
 							wn += squares[to];
-						} else if (promote == 4) {
+						} else if (promote == ROOK) {
 							wp -= squares[to];
 							wr += squares[to];
-						} else if (promote == 5) {
+						} else if (promote == BISHOP) {
 							wp -= squares[to];
 							wb += squares[to];
 						}
 					} else {
-						if (promote == 2) {
+						if (promote == QUEEN) {
 							bp -= squares[to];
 							bq += squares[to];
-						} else if (promote == 3) {
+						} else if (promote == KNIGHT) {
 							bp -= squares[to];
 							bn += squares[to];
-						} else if (promote == 4) {
+						} else if (promote == ROOK) {
 							bp -= squares[to];
 							br += squares[to];
-						} else if (promote == 5) {
+						} else if (promote == BISHOP) {
 							bp -= squares[to];
 							bb += squares[to];
 						}
@@ -1410,6 +1429,7 @@ public class Board {
 	}
 
 	private ArrayList<Integer> legalizeMovesNeo(ArrayList<Integer> moves) {
+		int count = 0;
 		long attacks = 0L;
 		long pins = 0L;
 		long kingMoves = 0L;
@@ -1442,46 +1462,40 @@ public class Board {
 			int move = moves.get(i);
 			int from = move / 1000 % 1000;
 			if ((((pins >> from) & 1) == 1)
-					|| (kingSaftey & from == kingSquare)) {// ||
-				// Integer.parseInt(move.substring(4,
-				// 5))
-				// == 9)
-				// {
+					|| (kingSaftey & from == kingSquare)) {
 				if ((kingSaftey & from == kingSquare)) {
 					long to = 1L << move / 10 % 100;
 					if ((attacks & to) == to) {
 						moves.remove(i);
 						i--;
 					} else {
+						count++;
 						move(move);
-						if (isWhitesTurn && isBlackChecked()) {
-							moves.remove(i);
-							i--;
-						} else if (!isWhitesTurn && isWhiteChecked()) {
+						if ((isWhitesTurn && isBlackChecked())
+								|| (!isWhitesTurn && isWhiteChecked())) {
 							moves.remove(i);
 							i--;
 						}
 						undo();
 					}
 				} else {
+					count++;
 					move(move);
-					if (isWhitesTurn && isBlackChecked()) {
-						moves.remove(i);
-						i--;
-					} else if (!isWhitesTurn && isWhiteChecked()) {
+					if ((isWhitesTurn && isBlackChecked())
+							|| (!isWhitesTurn && isWhiteChecked())) {
 						moves.remove(i);
 						i--;
 					}
 					undo();
 				}
 			} else if (check) {
-				long to = 1L << move / 10 % 100;
-				if ((to & star) != 0) {
+
+				if (((1L << move / 10 % 100) & star) != 0) {
+					count++;
+					// System.out.println("Testing move: " + translate(move));
 					move(move);
-					if (isWhitesTurn && isBlackChecked()) {
-						moves.remove(i);
-						i--;
-					} else if (!isWhitesTurn && isWhiteChecked()) {
+					if ((isWhitesTurn && isBlackChecked())
+							|| (!isWhitesTurn && isWhiteChecked())) {
 						moves.remove(i);
 						i--;
 					}
@@ -1491,12 +1505,11 @@ public class Board {
 					i--;
 
 				}
-			} else if (moves.get(i) % 10 != 0) {
+			} else if (moves.get(i) % 10 == 9) {
+				// System.out.println("varifying a en Passant/promotion");
 				move(move);
-				if (isWhitesTurn && isBlackChecked()) {
-					moves.remove(i);
-					i--;
-				} else if (!isWhitesTurn && isWhiteChecked()) {
+				if ((isWhitesTurn && isBlackChecked())
+						|| (!isWhitesTurn && isWhiteChecked())) {
 					moves.remove(i);
 					i--;
 				}
@@ -1504,6 +1517,23 @@ public class Board {
 			}
 
 		}
+		// if (count > 15)
+		// System.out.println("Count: " + count + "\t\t" + this.getFEN());
+		return moves;
+	}
+
+	private ArrayList<Integer> legalizeMoves(ArrayList<Integer> moves) {
+		int count = 0;
+		long attacks = 0L;
+		long pins = 0L;
+		long kingMoves = 0L;
+		int kingSquare;
+		boolean check = false;
+		boolean kingSaftey = false;
+		long star = 0L;
+		// all subject squares are first genertated for white
+		// get a long of all knights that are a knights move away from the king
+		long testSquares = getKnightMovement(getWhiteKingSquare()) & bn;
 		return moves;
 	}
 
@@ -1519,6 +1549,15 @@ public class Board {
 		int from = Integer.parseInt(move.substring(0, 2));
 		int to = Integer.parseInt(move.substring(2, 4));
 		ans += getSqaureName(from) + "" + getSqaureName(to) + "(" + move + ")";
+		return ans;
+	}
+
+	public ArrayList<String> translate(ArrayList<Integer> input) {
+		ArrayList<String> ans = new ArrayList<String>();
+		for (int i = 0; i < input.size(); i++) {
+			ans.add(translate(input.get(i)));
+		}
+
 		return ans;
 	}
 
@@ -1813,6 +1852,17 @@ public class Board {
 				return 0;
 		}
 
+		long blackMoves = getBlackMovement() | blackPawnAttackLeft()
+				| blackPawnAttackRight();
+		long whiteMoves = getWhiteMovement() | whitePawnAttackLeft()
+				| whitePawnAttackRight();
+
+		long whiteKingMoves = getKingMovement(getWhiteKingSquare());
+		long wPins = getWhitePins();
+
+		long blackKingMoves = getKingMovement(getBlackKingSquare());
+		long bPins = getBlackPins();
+
 		int wpc = countBits(wp);
 		int bpc = countBits(bp);
 
@@ -1828,14 +1878,162 @@ public class Board {
 		int wqc = countBits(wq);
 		int bqc = countBits(bq);
 
+		int whiteAttacks = countBits(whiteMoves & getBlack());
+		int blackAttacks = countBits(blackMoves & getWhite());
+
+		int whiteDefend = countBits(whiteMoves & getWhite());
+		int blackDefend = countBits(blackMoves & getBlack());
+
+		int whitePins = countBits(wPins);
+		int blackPins = countBits(bPins);
+
+		int whiteDoublePawn = 0;
+		int blackDoublePawn = 0;
+
+		int whiteKingAttack = countBits(whiteMoves & blackKingMoves);
+		int blackKingAttack = countBits(blackMoves & whiteKingMoves);
+
+		int whiteKingDefend = countBits(whiteMoves & whiteKingMoves);
+		int blackKingDefend = countBits(blackMoves & blackKingMoves);
+
+		int whiteAttackCenter = countBits(whiteMoves & CENTRE);
+		int blackAttackCenter = countBits(blackMoves & CENTRE);
+
+		int wrp = 0;
+		int brp = 0;
+		for (long temp = wr; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			wrp += rookPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		for (long temp = br; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			brp += rookPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+
+		/*
+		 * int wpp = 0; int bpp = 0; for (long temp = wp; temp != 0; temp -= 1L
+		 * << Long .numberOfTrailingZeros(temp)) { wpp +=
+		 * pawnPlacement[Long.numberOfTrailingZeros(temp)]; } for (long temp =
+		 * bp; temp != 0; temp -= 1L << Long .numberOfTrailingZeros(temp)) { bpp
+		 * += pawnPlacement[Long.numberOfTrailingZeros(temp)]; }
+		 */
+
+		int wbp = 0;
+		int bbp = 0;
+		for (long temp = wb; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			wbp += bishopPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		for (long temp = bb; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			bbp += bishopPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+
+		int wnp = 0;
+		int bnp = 0;
+		for (long temp = wn; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			wnp += knightPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		for (long temp = bn; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			bnp += knightPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+
+		for (int i = 0; i < rankMask.length; i++) {
+			countBits(wp & rankMask[2]);
+		}
+
+		int wqp = 0;
+		int bqp = 0;
+		for (long temp = wq; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			wnp += queenPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		for (long temp = bq; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			bqp += queenPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		int wpp = 0;
+		int bpp = 0;
+		for (long temp = wp; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			wpp += whitePawnPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		for (long temp = bp; temp != 0; temp -= 1L << Long
+				.numberOfTrailingZeros(temp)) {
+			bpp += blackPawnPlacement[Long.numberOfTrailingZeros(temp)];
+		}
+		int wkp = 0;
+		/*
+		 * for (long temp = wk; temp != 0; temp -= 1L << Long
+		 * .numberOfTrailingZeros(temp)) { wkp +=
+		 * whiteKingPlacement[Long.numberOfTrailingZeros(temp)]; }
+		 */
+
+		for (int i = 0; i < rankMask.length; i++) {
+			countBits(wp & rankMask[2]);
+		}
+
+		for (int i = 0; i < fileMask.length; i++) {
+			if (countBits(fileMask[i] & wp) > 1)
+				whiteDoublePawn++;
+			if (countBits(fileMask[i] & bp) > 1)
+				blackDoublePawn++;
+		}
+
+		int whitePawnMovement = 2 * countBits(wp & rankMask[1]);
+		whitePawnMovement += 3 * countBits(wp & rankMask[2]);
+		whitePawnMovement += 4 * countBits(wp & rankMask[3]);
+		whitePawnMovement += 5 * countBits(wp & rankMask[4]);
+		whitePawnMovement += 6 * countBits(wp & rankMask[5]);
+		whitePawnMovement += 7 * countBits(wp & rankMask[6]);
+		whitePawnMovement += 8 * countBits(wp & rankMask[7]);
+
+		int blackPawnMovement = 2 * countBits(bp & rankMask[7]);
+		blackPawnMovement += 3 * countBits(bp & rankMask[6]);
+		blackPawnMovement += 4 * countBits(bp & rankMask[5]);
+		blackPawnMovement += 5 * countBits(bp & rankMask[4]);
+		blackPawnMovement += 6 * countBits(bp & rankMask[3]);
+		blackPawnMovement += 7 * countBits(bp & rankMask[2]);
+		blackPawnMovement += 8 * countBits(bp & rankMask[1]);
+
+		// int wkc = countBits(wk); // int bkc = countBits(bk);
 		int material = 900 * (wqc - bqc) + 500 * (wrc - brc) + 300
 				* (wbc - bbc) + 250 * (wnc - bnc) + 100 * (wpc - bpc);
-
-		return material + (whiteMoveCount - blackMoveCount);
-
+		int otherStuff = 15 * (whiteMoveCount - blackMoveCount) - 5
+				* (whiteDoublePawn - blackDoublePawn) + 25
+				* (whiteAttacks - blackAttacks) + 25
+				* (whiteDefend - blackDefend) + 10 * (whitePins - blackPins)
+				+ 35 * (whiteKingAttack - blackKingAttack) + 25
+				* (whiteKingDefend - blackKingDefend) + 15
+				* (whiteAttackCenter - blackAttackCenter) + 15
+				* (whitePawnMovement - blackPawnMovement);
+		otherStuff += (wrp - brp) + (wbp - bbp) + (wnp - bnp) + (wqp + bqp)
+				+ wkp + (wpp - bpp);
+		return 2 * material + otherStuff/10;
 	}
 
 	private int getSmallValue() {
+		boolean old = isWhitesTurn;
+		isWhitesTurn = true;
+		int whiteMoveCount = this.generateMovesNeo(true).size();
+
+		isWhitesTurn = false;
+		int blackMoveCount = this.generateMovesNeo(true).size();
+		isWhitesTurn = old;
+		if (isWhitesTurn && whiteMoveCount == 0) {
+			if (isWhiteChecked()) {
+				return -10000000 + moveCount;
+			} else
+				return 0;
+		}
+		if (!isWhitesTurn && blackMoveCount == 0) {
+			if (isBlackChecked()) {
+				return 10000000 - moveCount;
+			} else
+				return 0;
+		}
 		int wpc = countBits(wp);
 		int bpc = countBits(bp);
 
@@ -1891,12 +2089,102 @@ public class Board {
 			qs(items, values, i, right);
 	}
 
-	private ArrayList<Integer> sortMoves(ArrayList<Integer> moves) {
-		return moves;
+	/**
+	 * Will sort the moves.
+	 * 
+	 * @param moves
+	 * @param maxMin
+	 *            1 if you want the largest value first. 0 if you want smallest
+	 *            value first
+	 * @return
+	 */
+	public ArrayList<Integer> sortMoves(ArrayList<Integer> moves, int maxMin) {
+		int[] input = new int[moves.size()];
+		for (int i = 0; i < moves.size(); i++) {
+			move(moves.get(i));
+			input[i] = this.getSmallValue();
+			undo();
+		}
+		if (maxMin == 0)
+			return quickSort(moves, input);
+		else {
+			ArrayList<Integer> ans = new ArrayList<Integer>();
+			ArrayList<Integer> backwards = quickSort(moves, input);
+			for (int i = moves.size() - 1; i >= 0; i--) {
+				ans.add(backwards.get(i));
+			}
+			return ans;
+		}
+	}
+
+	private ArrayList<Integer> quickSort(ArrayList<Integer> moves, int[] scores) {
+		int[] moveList = new int[moves.size()];
+		for (int i = 0; i < moveList.length; i++) {
+			moveList[i] = moves.get(i);
+		}
+		quickSort(moveList, scores, 0, moveList.length - 1);
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+		for (int i = 0; i < moveList.length; i++) {
+			ans.add(moveList[i]);
+		}
+		return ans;
+	}
+
+	public static void quickSort(int[] moves, int[] scores, int low, int high) {
+		/*
+		 * for (int i = 0; i < scores.length; i++) { System.out.print(scores[i]
+		 * + "\t"); } System.out.println();
+		 */
+		if (moves == null || moves.length == 0)
+			return;
+
+		if (low >= high)
+			return;
+
+		// pick the pivot
+		int middle = low + (high - low) / 2;
+		int pivot = scores[middle];
+
+		// make left < pivot and right > pivot
+		int i = low, j = high;
+		while (i <= j) {
+			while (scores[i] < pivot) {
+				i++;
+			}
+
+			while (scores[j] > pivot) {
+				j--;
+			}
+
+			if (i <= j) {
+				int temp = scores[i];
+				scores[i] = scores[j];
+				scores[j] = temp;
+
+				temp = moves[i];
+				moves[i] = moves[j];
+				moves[j] = temp;
+				i++;
+				j--;
+			}
+		}
+
+		// recursively sort two sub parts
+		if (low < j)
+			quickSort(moves, scores, low, j);
+
+		if (high > i)
+			quickSort(moves, scores, i, high);
 	}
 
 	public boolean isWhitesTurn() {
 		return isWhitesTurn;
+	}
+
+	public long getWhiteStar() {
+		long ans = 0L;
+		return ans;
+
 	}
 
 }

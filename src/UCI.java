@@ -1,12 +1,16 @@
 import java.util.*;
+
 /**
- * V0.01 - Board evaulation based on material and 1 cp is given for each avaialble move.
+ * V0.01.01 - Board evaulation based on material and 1 cp is given for each avaialble move.
+ * V0.01.02 - 6/14/16 Alpha-Beta fixed.
+ * V0.01.03 - 6/14/16 Moves are now sorted before going through Alpha-Beta.
+ * 
  * @author Rez
- *
+ * 
  */
 
 public class UCI {
-	static String ENGINENAME = "Rezatron v0.01";
+	static String ENGINENAME = "Rezatron v0.01.05";
 	static String ENGINEAUTHOR = "Michael Radaszkiewicz";
 	static Board b;
 
@@ -81,11 +85,8 @@ public class UCI {
 
 	public static void inputGo() {
 		MoveAlgorithm n = new MoveAlgorithm();
-		String move;
 		n = new MoveAlgorithm(b, 3);
-		int moveToMake = n.alphaBeta();
-		b.move(moveToMake);
-		System.out.println("bestmove " + b.translate(moveToMake));
+		System.out.println(n.iterativeDeepening(5));
 	}
 
 	public static void inputQuit() {
